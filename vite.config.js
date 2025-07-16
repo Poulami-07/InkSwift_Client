@@ -5,14 +5,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 
-// Define __dirname manually
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// https://vite.dev/config/
 export default defineConfig({
+  base: '/',
   plugins: [
-    tailwindcss(),
     react()
   ],
  resolve: {
@@ -20,15 +18,7 @@ export default defineConfig({
       'pdfjs-dist': path.resolve(__dirname, 'node_modules/pdfjs-dist'),
     },
   },
-  // build: {
-  //   rollupOptions: {
-  //     output: {
-  //       manualChunks: {
-  //         'pdfjs-worker': ['pdfjs-dist/build/pdf.worker.entry'],
-  //       },
-  //     },
-  //   },
-  // },
+  
   server: {
     proxy: {
       '/api': {
@@ -39,14 +29,3 @@ export default defineConfig({
     },
   },
 })
-
-// content: [
-//   './index.html',
-//   './src/**/*.{js,ts,jsx,tsx}',
-//   './src/styles/react-pdf.css' // ensure this file is included
-// ],
-// safelist: [
-//   {
-//     pattern: /^react-pdf__/,
-//   },
-// ],
