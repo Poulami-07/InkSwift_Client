@@ -32,7 +32,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://ink-swift-server.vercel.app/',
+        target: 'https://inkswift-server-1.onrender.com',
         changeOrigin: true,
         secure: false,
       },
