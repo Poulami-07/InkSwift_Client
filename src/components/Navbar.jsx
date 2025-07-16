@@ -18,9 +18,9 @@ const Navbar = () => {
 
         const {data} = await axios.post(
         `${backendUrl}/api/auth/send-verify-otp`,
-        {}, // empty body since you're using cookies
+        {}, 
         {
-          withCredentials: true, // this should be in the config object
+          withCredentials: true, 
           headers: {
             'Content-Type': 'application/json'
           }
@@ -83,3 +83,4 @@ const Navbar = () => {
 }
 
 export default Navbar;
+

@@ -1,6 +1,3 @@
-
-
-
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { AppContent } from "../context/AppContext";
@@ -13,6 +10,7 @@ import { saveAs } from 'file-saver';
 import 'react-pdf/dist/Page/AnnotationLayer.js';
 import 'react-pdf/dist/Page/TextLayer.js';
 
+// Set worker path
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -58,7 +56,7 @@ const SignaturePlaceholder = ({ id, x, y, name, onDelete, onMove, locked }) => {
             bottomLeft: true,
             topLeft: true,
           }
-        } // disable resizing if locked
+        }
         onResizeStop={(e, direction, ref, d) => {
           if (!locked) {
             setSize((prev) => ({
@@ -151,7 +149,7 @@ const DocDashboard = () => {
           withCredentials: true,
         });
         if (data.success) setDocs(data.documents);
-      } catch (error) {
+      } catch {
         toast.error("Error fetching documents");
       } finally {
         setLoading(false);
@@ -192,20 +190,18 @@ const DocDashboard = () => {
           }
         }
 
-    } catch (error) {
+    } catch {
       toast.error("Upload failed");
     }
   };
 
 const handleSaveSignature = async () => {
   try {
-    // 1. Validate document selection
     if (!docs.length || !selectedPdfUrl) {
       toast.error("Please select a document first");
       return;
     }
 
-    // 2. Find current document
     const selectedFileName = selectedPdfUrl.split("/").pop();
     const currentDoc = docs.find(doc => doc.filePath?.includes(selectedFileName));
     if (!currentDoc?._id) {
@@ -213,7 +209,6 @@ const handleSaveSignature = async () => {
       return;
     }
 
-    // 3. Filter only unsaved signatures
     const unsavedSignatures = signatures.filter(sig => !sig.locked);
     if (unsavedSignatures.length === 0) {
       toast.info("All signatures are already saved");
@@ -222,7 +217,6 @@ const handleSaveSignature = async () => {
 
     const loadingToastId = toast.loading(`Saving ${unsavedSignatures.length} signature(s)...`);
 
-    // 4. Save signatures and track results
     const saveResults = await Promise.all(
       unsavedSignatures.map(async (sig) => {
         try {
@@ -233,6 +227,7 @@ const handleSaveSignature = async () => {
               x: sig.x,
               y: sig.y,
               page: sig.page,
+              name: sig.name, 
               status: "Signed"
             },
             {
@@ -255,7 +250,6 @@ const handleSaveSignature = async () => {
       })
     );
 
-    // 5. Update state with locked signatures
     setSignatures(prev => 
       prev.map(sig => {
         const savedSig = saveResults.find(s => s.id === sig.id);
@@ -263,7 +257,6 @@ const handleSaveSignature = async () => {
       })
     );
 
-    // 6. Verify results
     const savedCount = saveResults.filter(sig => sig.locked).length;
     if (savedCount === unsavedSignatures.length) {
       toast.update(loadingToastId, {
@@ -290,24 +283,19 @@ const handleSaveSignature = async () => {
 
 
 
-
-
 const handleGenerateSignedPDF = async () => {
   try {
-    // Validate if document is selected
+
     if (!selectedPdfUrl || !docs.length) {
       toast.error("Please select a document first");
       return;
     }
 
-    // Show loading state
     const loadingToastId = toast.loading("Generating signed PDF...");
 
-    // Find the current document
     const selectedFileName = selectedPdfUrl.split("/").pop();
     const currentDoc = docs.find(doc => doc.filePath?.includes(selectedFileName));
 
-    // Validate document exists
     if (!currentDoc?._id) {
       toast.update(loadingToastId, {
         render: "Document not found",
@@ -318,19 +306,19 @@ const handleGenerateSignedPDF = async () => {
       return;
     }
 
-    // Generate signed PDF from backend
+    
     const response = await axios.post(
       `${backendUrl}/api/signatures/generate-signed-pdf`,
       { fileId: currentDoc._id },
       {
-        responseType: 'blob', // Important for file downloads
+        responseType: 'blob', // for file downloads
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       }
     );
 
-    // Create filename (using original name or fallback to 'document')
+    // Created filename (using original name or fallback to 'document')
     const filename = `signed_${currentDoc.name || 'document'}.pdf`;
 
     // Use FileSaver.js for reliable download
@@ -339,7 +327,6 @@ const handleGenerateSignedPDF = async () => {
       filename
     );
 
-    // Update success notification
     toast.update(loadingToastId, {
       render: "Signed PDF download started!",
       type: "success",
@@ -350,7 +337,7 @@ const handleGenerateSignedPDF = async () => {
   } catch (error) {
     console.error("PDF Download Error:", error);
     
-    // Show appropriate error message
+   
     const errorMessage = error.response?.data?.message || 
       error.message || 
       "Failed to download signed PDF";
@@ -359,7 +346,7 @@ const handleGenerateSignedPDF = async () => {
       autoClose: 5000
     });
 
-    // If we have a loading toast, update it
+   
     if (loadingToastId) {
       toast.update(loadingToastId, {
         render: errorMessage,
@@ -426,6 +413,7 @@ const handleDeleteSignature = (id) => {
                       name: signatureName,
                       page: currentPage,
                       locked: false,
+                     
                     },
                   ]);
                 }
@@ -531,3 +519,4 @@ const handleDeleteSignature = (id) => {
 };
 
 export default DocDashboard;
+

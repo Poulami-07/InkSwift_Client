@@ -10,9 +10,9 @@ const Header = () => {
 
   const handleGetStarted = () => {
     if (userData) {
-      navigate('/dashboard'); // logged in: go to dashboard
+      navigate('/dashboard'); 
     } else {
-      navigate('/login'); // not logged in: go to login/signup
+      navigate('/login'); 
     }
   };
 
