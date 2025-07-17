@@ -313,6 +313,7 @@ const handleGenerateSignedPDF = async () => {
       {
         responseType: 'blob', // for file downloads
         headers: {
+           withCredentials: true,
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       }
